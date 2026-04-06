@@ -19,7 +19,8 @@
   <body>
     <div class="page-wrapper">
       <header class="site-header">
-        <img src="loreal-logo.png" alt="L’Oréal logo" class="brand-logo" />
+        <!-- 🔥 img 폴더 경로로 수정 -->
+        <img src="img/loreal-logo.png" alt="L’Oréal logo" class="brand-logo" />
         <h1 class="site-title">Smart Routine & Product Advisor</h1>
       </header>
 
@@ -27,23 +28,19 @@
         <section class="chatbox">
           <div id="latestQuestion" class="latest-question hidden"></div>
 
-          <div id="chatWindow" class="chat-window">
-            <!-- messages added by JS -->
-          </div>
+          <div id="chatWindow" class="chat-window"></div>
 
           <form id="chatForm" class="chat-form">
             <label for="userInput" class="visually-hidden">Message</label>
             <input
               id="userInput"
-              name="userInput"
               type="text"
               placeholder="Ask me about any L’Oréal product or routine..."
               autocomplete="off"
               required
             />
-            <button type="submit" id="sendBtn">
+            <button type="submit">
               <span class="material-icons">send</span>
-              <span class="visually-hidden">Send</span>
             </button>
           </form>
         </section>

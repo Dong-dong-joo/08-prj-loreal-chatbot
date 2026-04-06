@@ -3,8 +3,7 @@ const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 const latestQuestion = document.getElementById("latestQuestion");
 
-// Paste your deployed Cloudflare Worker URL here
-const WORKER_URL = "https://dong-dong-joo.github.io/08-prj-loreal-chatbot/";
+const WORKER_URL = "https://calm-feather-1e24.dkim234.workers.dev";
 
 const messages = [
   {
@@ -19,29 +18,22 @@ You only answer questions related to:
 - fragrances
 - beauty routines
 - beauty recommendations
-- product categories and ingredients related to beauty
 
 Rules:
-1. Be friendly, clear, and helpful.
-2. Only answer beauty-related and L’Oréal-related questions.
-3. Politely refuse unrelated topics such as math, coding, politics, sports, or general trivia.
-4. If the user asks for a routine, provide step-by-step help.
-5. If the user asks for a recommendation, explain why the suggestion fits.
-6. Do not claim to be a doctor or dermatologist.
-7. If the user describes a serious skin issue, suggest speaking with a licensed professional.`,
+1. Be friendly and clear.
+2. Only answer beauty-related questions.
+3. Politely refuse unrelated questions.
+4. Suggest routines step-by-step.
+5. Explain recommendations simply.`,
   },
 ];
 
 function addMessage(role, text) {
-  const row = document.createElement("div");
-  row.className = `message-row ${role}`;
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  div.textContent = text;
 
-  const bubble = document.createElement("div");
-  bubble.className = "message-bubble";
-  bubble.textContent = text;
-
-  row.appendChild(bubble);
-  chatWindow.appendChild(row);
+  chatWindow.appendChild(div);
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
@@ -50,30 +42,9 @@ function showLatestQuestion(text) {
   latestQuestion.classList.remove("hidden");
 }
 
-function showTyping() {
-  const row = document.createElement("div");
-  row.className = "message-row assistant";
-  row.id = "typingRow";
-
-  const bubble = document.createElement("div");
-  bubble.className = "message-bubble typing";
-  bubble.textContent = "Thinking...";
-
-  row.appendChild(bubble);
-  chatWindow.appendChild(row);
-  chatWindow.scrollTop = chatWindow.scrollHeight;
-}
-
-function removeTyping() {
-  const typingRow = document.getElementById("typingRow");
-  if (typingRow) {
-    typingRow.remove();
-  }
-}
-
 addMessage(
-  "assistant",
-  "Hi! I’m your L’Oréal beauty assistant. Ask me about products, skincare, makeup, haircare, fragrances, or routines.",
+  "ai",
+  "Hi! I’m your L’Oréal assistant. Ask me about skincare, makeup, or routines.",
 );
 
 chatForm.addEventListener("submit", async (e) => {
@@ -91,7 +62,8 @@ chatForm.addEventListener("submit", async (e) => {
   });
 
   userInput.value = "";
-  showTyping();
+
+  addMessage("ai", "Thinking...");
 
   try {
     const response = await fetch(WORKER_URL, {
@@ -99,30 +71,37 @@ chatForm.addEventListener("submit", async (e) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        messages: messages,
-      }),
+      body: JSON.stringify({ messages }),
     });
 
     const data = await response.json();
-    removeTyping();
+    console.log("Worker response:", data);
 
-    const reply =
-      data.choices?.[0]?.message?.content ||
-      "Sorry, I couldn’t generate a response right now.";
+    chatWindow.lastChild.remove();
 
-    addMessage("assistant", reply);
+    let reply = data.choices?.[0]?.message?.content;
+
+    if (!reply) {
+      if (typeof data.error === "object") {
+        reply = JSON.stringify(data.error);
+      } else if (typeof data.error === "string") {
+        reply = data.error;
+      } else {
+        reply = "Sorry, I couldn't respond.";
+      }
+    }
+
+    addMessage("ai", reply);
 
     messages.push({
       role: "assistant",
       content: reply,
     });
-  } catch (error) {
-    removeTyping();
-    addMessage(
-      "assistant",
-      "Sorry, something went wrong while connecting to the chatbot.",
-    );
-    console.error(error);
+  } catch (err) {
+    if (chatWindow.lastChild) {
+      chatWindow.lastChild.remove();
+    }
+    addMessage("ai", "Error connecting to chatbot.");
+    console.error(err);
   }
 });
