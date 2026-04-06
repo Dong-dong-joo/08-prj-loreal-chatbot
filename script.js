@@ -4,7 +4,7 @@ const chatWindow = document.getElementById("chatWindow");
 const latestQuestion = document.getElementById("latestQuestion");
 
 // Paste your deployed Cloudflare Worker URL here
-const WORKER_URL = "https://YOUR-WORKER-URL.workers.dev";
+const WORKER_URL = "https://dong-dong-joo.github.io/08-prj-loreal-chatbot/";
 
 const messages = [
   {
